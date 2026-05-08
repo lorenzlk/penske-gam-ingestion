@@ -31,3 +31,5 @@ Derived from `progress.jsonl`. Do not edit by hand; append events to the JSONL f
 - **decision**: Apps Script **`Ingest.gs`** implements the same ingest as Python; config via Script properties; **`scheduledRun`** invokes it. **Implication**: `clasp push` + Gmail authorization after deploy.
 
 - **change**: End-to-end Apps Script ingest confirmed (2 Mula reports → 31 + 17 rows on **Data**; `GAM/Ingested` applied).
+
+- **change**: Git repo initialized; remote [penske-gam-ingestion](https://github.com/lorenzlk/penske-gam-ingestion); `main` pushed; `*.pdf` gitignored (local report PDF not committed).
