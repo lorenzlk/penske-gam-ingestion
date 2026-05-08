@@ -36,6 +36,10 @@ function ingestGmailReportToSheet() {
   for (var t = 0; t < threads.length; t++) {
     var thread = threads[t];
     if (threadHasLabel_(thread, cfg.processedLabel)) {
+      Logger.log(
+        'Skip: thread already has label "%s" (remove label to re-ingest, or wait for new mail)',
+        cfg.processedLabel
+      );
       skipped++;
       continue;
     }
@@ -126,7 +130,12 @@ function ingestGmailReportToSheet() {
     Logger.log('Ingested message %s rows=%s file=%s', meta.gmail_message_id, built.rows.length, meta.attachment_filename);
   }
 
-  Logger.log('Done. processed=%s skipped=%s candidates=%s', processed, skipped, threads.length);
+  Logger.log(
+    'Done. processed=%s skipped=%s candidates=%s (skipped = label and/or sheet duplicate/no CSV/etc.)',
+    processed,
+    skipped,
+    threads.length
+  );
 }
 
 /**
