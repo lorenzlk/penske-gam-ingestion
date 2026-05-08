@@ -1,0 +1,18 @@
+{
+  "name": "penske-gam-apps-script",
+  "private": true,
+  "description": "Clasp project bound to Penske KVP GAM Apps Script",
+  "scripts": {
+    "login": "clasp login",
+    "logout": "clasp logout",
+    "pull": "clasp pull",
+    "push": "clasp push",
+    "push:force": "clasp push --force",
+    "open": "clasp open",
+    "status": "clasp status",
+    "deploy": "clasp deploy"
+  },
+  "devDependencies": {
+    "@google/clasp": "^3.1.0"
+  }
+}

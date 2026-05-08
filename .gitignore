@@ -1,0 +1,16 @@
+.env
+credentials.json
+token.json
+__pycache__/
+*.py[cod]
+.Python
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+node_modules/
+
+# Local downloads of live reports (keep schema under samples/ instead)
+PMC _ Mula Report.csv
+*.pdf

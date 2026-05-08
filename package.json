@@ -1,0 +1,14 @@
+{
+  "name": "penske-gam-ingestion",
+  "private": true,
+  "description": "Root shortcuts; clasp lives in apps-script/",
+  "scripts": {
+    "clasp:install": "npm install --prefix apps-script",
+    "clasp:login": "npm run login --prefix apps-script",
+    "clasp:pull": "npm run pull --prefix apps-script",
+    "clasp:push": "npm run push --prefix apps-script",
+    "clasp:push:force": "npm run push:force --prefix apps-script",
+    "clasp:open": "npm run open --prefix apps-script",
+    "clasp:status": "npm run status --prefix apps-script"
+  }
+}
