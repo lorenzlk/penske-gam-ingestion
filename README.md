@@ -127,7 +127,15 @@ npx clasp login
 npm run pull
 ```
 
-From the **repository root**, you can use the same commands without `cd`:
+From the **repository root**, **`clasp`** works without `cd` — a **`.clasp.json`** at the repo root sets `rootDir` to **`apps-script/src`** (same project as `apps-script/.clasp.json` when run from inside `apps-script/`).
+
+```bash
+clasp push
+# or if clasp skips:
+clasp push --force
+```
+
+You can also use npm wrappers:
 
 ```bash
 npm run clasp:install
