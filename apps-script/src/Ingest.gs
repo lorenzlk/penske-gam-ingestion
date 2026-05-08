@@ -26,6 +26,13 @@ function ingestGmailReportToSheet() {
   var processed = 0;
   var skipped = 0;
 
+  var ss = SpreadsheetApp.openById(cfg.spreadsheetId);
+  var sheet = ss.getSheetByName(cfg.sheetTab);
+  if (!sheet) {
+    throw new Error('Missing tab: ' + cfg.sheetTab);
+  }
+  var existingIds = loadExistingMessageIds_(sheet);
+
   for (var t = 0; t < threads.length; t++) {
     var thread = threads[t];
     if (threadHasLabel_(thread, cfg.processedLabel)) {
@@ -77,10 +84,16 @@ function ingestGmailReportToSheet() {
       attachment_filename: att.getName() || '',
     };
 
-    var ss = SpreadsheetApp.openById(cfg.spreadsheetId);
-    var sheet = ss.getSheetByName(cfg.sheetTab);
-    if (!sheet) {
-      throw new Error('Missing tab: ' + cfg.sheetTab);
+    if (existingIds[meta.gmail_message_id]) {
+      Logger.log(
+        'Skip duplicate: message id already in sheet %s (apply label only)',
+        meta.gmail_message_id
+      );
+      if (!cfg.dryRun) {
+        thread.addLabel(label);
+      }
+      skipped++;
+      continue;
     }
 
     var existingHeader = getFirstRowValues_(sheet);
@@ -103,7 +116,7 @@ function ingestGmailReportToSheet() {
 
     if (!cfg.dryRun && toWrite.length > 0) {
       appendRows_(sheet, toWrite);
-      // GmailMessage.addLabel is not always available; GmailThread.addLabel labels the whole thread.
+      existingIds[meta.gmail_message_id] = true;
       thread.addLabel(label);
     } else if (cfg.dryRun) {
       Logger.log('DRY_RUN: would append %s rows', toWrite.length);
@@ -260,6 +273,31 @@ function stripBom_(s) {
     return s.substring(1);
   }
   return s;
+}
+
+/**
+ * Existing gmail_message_id values in column A (skips empty cells and the header literal).
+ */
+function loadExistingMessageIds_(sheet) {
+  var ids = {};
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 1) {
+    return ids;
+  }
+  var colA = sheet.getRange(1, 1, lastRow, 1).getValues();
+  var headerToken = META_KEYS_[0];
+  for (var i = 0; i < colA.length; i++) {
+    var cell = colA[i][0];
+    if (cell === null || cell === undefined) {
+      continue;
+    }
+    var v = String(cell).trim();
+    if (!v || v === headerToken) {
+      continue;
+    }
+    ids[v] = true;
+  }
+  return ids;
 }
 
 function getFirstRowValues_(sheet) {

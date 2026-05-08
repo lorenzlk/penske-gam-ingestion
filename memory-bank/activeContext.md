@@ -11,7 +11,7 @@
 ## Apps Script
 
 - Project ID `1h7Ad1fzEw2BlNRgbU6s3YlzIlkxWiRkQyf-aEoxOLLZHYn7UwtaA2nv5`; clasp root `apps-script/` (`npm install`, `clasp login`, `npm run pull`).
-- **Ingest:** `Ingest.gs` — **`ingestGmailReportToSheet`** verified: **2 threads**, **31 + 17** rows from **`PMC _ Mula Report.csv`**, `processed=2`, append uses **`getRange(..., numRows, numCols)`** correctly.
+- **Ingest:** `Ingest.gs` + Python `run.py` skip appending when **`gmail_message_id`** already appears in sheet column A; still apply label if duplicate detected.
 - **Triggers:** `scheduledRun()` runs the same ingest daily for new mail (already labeled threads skipped).
 
 ## Next steps for operators

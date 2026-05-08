@@ -11,6 +11,8 @@ You can run that flow either as **Python** (local / CI + `.env`) or **entirely i
 3. Parses the CSV and appends rows to the configured tab.
 4. Applies a Gmail label (`GAM_PROCESSED_LABEL`) so the same email is not ingested twice.
 
+**Duplicate guard:** before appending, both Python and Apps Script read **`gmail_message_id`** values already in **column A**. If a message id is already present, that message is **skipped** (no duplicate rows). The ingest label is still applied so Gmail stays in sync. After you clear the sheet, existing ids are gone—either rely on labels until you remove them, or accept that those threads could be re-imported once.
+
 The sheet gets four leading columns on every row:
 
 `gmail_message_id`, `gmail_internal_date_ms`, `email_subject`, `attachment_filename`, then the CSV columns from the report.

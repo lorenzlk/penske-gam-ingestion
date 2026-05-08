@@ -5,6 +5,9 @@ from typing import Any, Iterable
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
+# First meta column in appended rows; used to dedupe against existing sheet data.
+_GMAIL_ID_HEADER = "gmail_message_id"
+
 
 def _service(creds: Credentials):
     return build("sheets", "v4", credentials=creds, cache_discovery=False)
@@ -32,6 +35,38 @@ def get_first_row(creds: Credentials, spreadsheet_id: str, sheet_tab: str) -> li
     if not rows:
         return None
     return [str(c) if c is not None else "" for c in rows[0]]
+
+
+def get_existing_gmail_message_ids(
+    creds: Credentials,
+    spreadsheet_id: str,
+    sheet_tab: str,
+) -> set[str]:
+    """All non-empty gmail_message_id values in column A (skips the literal header cell)."""
+    svc = _service(creds)
+    rng = f"{_a1_sheet_tab(sheet_tab)}!A:A"
+    try:
+        resp = (
+            svc.spreadsheets()
+            .values()
+            .get(spreadsheetId=spreadsheet_id, range=rng)
+            .execute()
+        )
+    except Exception:
+        return set()
+    rows = resp.get("values") or []
+    out: set[str] = set()
+    for row in rows:
+        if not row:
+            continue
+        raw = row[0]
+        if raw is None:
+            continue
+        v = str(raw).strip()
+        if not v or v == _GMAIL_ID_HEADER:
+            continue
+        out.add(v)
+    return out
 
 
 def append_rows(

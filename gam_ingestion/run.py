@@ -31,6 +31,12 @@ def run_once(settings: Settings) -> int:
     label_id = gmail_ops.ensure_label_id(creds, settings.processed_label)
     candidate_ids = gmail_ops.list_candidate_messages(creds, settings.gmail_query)
 
+    existing_ids = sheets_ops.get_existing_gmail_message_ids(
+        creds,
+        settings.spreadsheet_id,
+        settings.sheet_tab,
+    )
+
     encoding = os.environ.get("GAM_CSV_ENCODING", "utf-8-sig")
     att_pattern = os.environ.get("GAM_ATTACHMENT_REGEX", "").strip() or None
 
@@ -61,6 +67,16 @@ def run_once(settings: Settings) -> int:
             "email_subject": msg.subject,
             "attachment_filename": filename,
         }
+
+        if msg.message_id in existing_ids:
+            log.info(
+                "Skip duplicate: message %s already present in sheet column A",
+                mid,
+            )
+            if not settings.dry_run:
+                gmail_ops.add_label_to_message(creds, mid, label_id)
+            skipped += 1
+            continue
 
         extract = parse_csv_bytes(raw_bytes, encoding)
         if not extract.header:
@@ -105,6 +121,7 @@ def run_once(settings: Settings) -> int:
 
         if not settings.dry_run:
             gmail_ops.add_label_to_message(creds, mid, label_id)
+            existing_ids.add(msg.message_id)
 
         processed += 1
         log.info(
